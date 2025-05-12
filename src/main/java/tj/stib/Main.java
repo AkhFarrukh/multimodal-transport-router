@@ -1,17 +1,23 @@
 package tj.stib;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        // Print the current working directory
+        long startTime = System.currentTimeMillis();
+        System.out.println("Working Directory: " + System.getProperty("user.dir"));
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        Path csvPath = Path.of("GTFS/STIB/stop_times.csv");
+
+        // Call the readData method with the file path
+        DataExtractorGTFS.readData(csvPath);
+
+        long endTime = System.currentTimeMillis();
+        double durationSeconds = (endTime - startTime) / 1000.0;
+        System.out.println("Execution time: " + durationSeconds + " s");
     }
 }
