@@ -1,75 +1,81 @@
 package tj.stib;
 
 public class Time {
-    private final int hours;
-    private final int minutes;
-    private final int seconds;
+    private final int totalSeconds;
 
     public Time(int hours, int minutes, int seconds) {
-        this.hours = hours;
-        this.minutes = minutes;
-        this.seconds = seconds;
+        this.totalSeconds = hours * 3600 + minutes * 60 + seconds;
     }
 
     public Time(int totalSeconds) {
-        this.hours = totalSeconds / 3600;
-        this.minutes = (totalSeconds % 3600) / 60;
-        this.seconds = totalSeconds % 60;
+        this.totalSeconds = totalSeconds;
     }
 
-    public int hours() { return hours; }
-    public int minutes() { return minutes; }
-    public int seconds() { return seconds; }
+    public Time(String timeString) {
+        String[] parts = timeString.split(":");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("time not in xx:xx:xx format");
+        }
+        int hours = Integer.parseInt(parts[0]);
+        int minutes = Integer.parseInt(parts[1]);
+        int seconds = Integer.parseInt(parts[2]);
+        this.totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    }
+
+    public int hours() {
+        return totalSeconds / 3600;
+    }
+
+    public int minutes() {
+        return (totalSeconds % 3600) / 60;
+    }
+
+    public int seconds() {
+        return totalSeconds % 60;
+    }
 
     public int totalSeconds() {
-        return hours * 3600 + minutes * 60 + seconds;
+        return totalSeconds;
     }
 
     public Time add(Time other) {
-        int s = this.seconds + other.seconds;
-        int m = this.minutes + other.minutes + s / 60;
-        int h = this.hours + other.hours + m / 60;
-        return new Time(h, m % 60, s % 60);
+        return new Time(this.totalSeconds + other.totalSeconds);
     }
 
     public Time subtract(Time other) {
-        int diff = this.totalSeconds() - other.totalSeconds();
-        if (diff < 0){
+        int diff = this.totalSeconds - other.totalSeconds;
+        if (diff < 0) {
             throw new IllegalArgumentException("negative time");
         }
         return new Time(diff);
     }
 
     public boolean isGreaterThan(Time other) {
-        return this.hours > other.hours ||
-               (this.hours == other.hours && this.minutes > other.minutes) ||
-               (this.hours == other.hours && this.minutes == other.minutes && this.seconds > other.seconds);
+        return this.totalSeconds > other.totalSeconds;
     }
 
     public boolean isLessThan(Time other) {
-        return this.hours < other.hours ||
-               (this.hours == other.hours && this.minutes < other.minutes) ||
-               (this.hours == other.hours && this.minutes == other.minutes && this.seconds < other.seconds);
+        return this.totalSeconds < other.totalSeconds;
     }
 
     public boolean isEqualTo(Time other) {
-        return this.hours == other.hours && this.minutes == other.minutes && this.seconds == other.seconds;
+        return this.totalSeconds == other.totalSeconds;
     }
 
     public boolean isNotEqualTo(Time other) {
-        return !this.isEqualTo(other);
+        return this.totalSeconds != other.totalSeconds;
     }
 
     public boolean isGreaterThanOrEqualTo(Time other) {
-        return this.isGreaterThan(other) || this.isEqualTo(other);
+        return this.totalSeconds >= other.totalSeconds;
     }
 
     public boolean isLessThanOrEqualTo(Time other) {
-        return this.isLessThan(other) || this.isEqualTo(other);
+        return this.totalSeconds <= other.totalSeconds;
     }
 
     @Override
     public String toString() {
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        return String.format("%02d:%02d:%02d", hours(), minutes(), seconds());
     }
 }
