@@ -3,6 +3,7 @@ package tj.stib;
 
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.NamedCsvRecord;
+import tj.stib.enums.Agency;
 import tj.stib.enums.RouteType;
 import tj.stib.records.Route;
 import tj.stib.records.Stop;
@@ -72,11 +73,11 @@ public class DataExtractorGTFS {
         }
     }
 
-    public static void extractTrips(Path filePath, Map<String, String> tripsMap) {
+    public static void extractTrips(Path filePath, Map<String, Integer> tripsMap) {
         try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(filePath)) {
             csv.forEach(rec -> {
                 String tripId = rec.getField("trip_id");
-                String routeId = rec.getField("route_id");
+                Integer routeId = rec.getField("route_id").hashCode();
                 tripsMap.put(tripId, routeId);
             });
         } catch (IOException e) {
@@ -84,33 +85,34 @@ public class DataExtractorGTFS {
         }
     }
 
-    public static void extractRoutes(Path filePath, Map<String, Route> routesMap) {
+    public static void extractRoutes(Path filePath, Map<Integer, Route> routesMap, String agencyString) {
+        Agency agency = Agency.fromString(agencyString);
+        int index = 0;
         try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(filePath)) {
-            csv.forEach(rec -> {
+            for (NamedCsvRecord rec : csv) {
                 String routeId = rec.getField("route_id");
-                String routeShortName = rec.getField("route_short_name");
-                String routeLongName = rec.getField("route_long_name");
                 RouteType routeType = RouteType.fromString(rec.getField("route_type"));
-
-                Route route = new Route(routeId, routeShortName, routeLongName, routeType);
-                routesMap.put(routeId, route);
-            });
+                Route route = new Route(routeId, index, routeType, agency);
+                routesMap.put(routeId.hashCode(), route);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void extractStops(Path filePath, Map<String, Stop> stopsMap) {
+    public static void extractStops(Path filePath, Map<String, Stop> stopsMap, String agencyString) {
+        Agency agency = Agency.fromString(agencyString);
+        int index = 0;
         try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(filePath)) {
-            csv.forEach(rec -> {
+            for (NamedCsvRecord rec : csv) {
                 String stopId = rec.getField("stop_id");
-                String stopName = rec.getField("stop_name");
                 double stopLat = Double.parseDouble(rec.getField("stop_lat"));
                 double stopLon = Double.parseDouble(rec.getField("stop_lon"));
 
-                Stop stop = new Stop(stopId, stopName, stopLat, stopLon);
+                Stop stop = new Stop(stopId, index, stopLat, stopLon, agency);
                 stopsMap.put(stopId, stop);
-            });
+                index++;
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
