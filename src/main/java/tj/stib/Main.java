@@ -26,46 +26,46 @@ public class Main {
 
         Map<String, List<StopTime>> stopsMapByStopId = new ConcurrentHashMap<>();
         Map<String, List<StopTime>> stopsMapByTripId = new ConcurrentHashMap<>();
-        Map<String, Integer> tripsMap = new ConcurrentHashMap<>();
-        Map<Integer, Route> routesMap = new ConcurrentHashMap<>();
+        Map<String, String> tripsMap = new ConcurrentHashMap<>();
+        Map<String, Route> routesMap = new ConcurrentHashMap<>();
         Map<String, Stop> stopsMap = new ConcurrentHashMap<>();
 
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Future<?>> futures = new ArrayList<>();
 
         for (String csvType : csvTypes) {
-            for (String agency : companies) {
-                Path path = Path.of("GTFS", agency, csvType);
-                    switch (csvType) {
-                        case "stop_times.csv" -> {
-                            futures.add(executor.submit(() -> {
+            for (String company : companies) {
+                Path path = Path.of("GTFS", company, csvType);
+                switch (csvType) {
+                    case "stop_times.csv" -> {
+                        futures.add(executor.submit(() -> {
                             DataExtractorGTFS.extractStopTimes(path, "stop_id", stopsMapByStopId);
-                            System.out.println("Done with " + agency + "/" + csvType + "by stop_id");
-                            }));
-                            futures.add(executor.submit(() -> {
+                            System.out.println("Done with " + company + "/" + csvType + "by stop_id");
+                        }));
+                        futures.add(executor.submit(() -> {
                             DataExtractorGTFS.extractStopTimes(path, "trip_id", stopsMapByTripId);
-                            System.out.println("Done with " + agency + "/" + csvType + "by trip_id");
-                            }));
-                        }
-                        case "trips.csv" ->{
-                            futures.add(executor.submit(() -> {
-                            DataExtractorGTFS.extractTrips(path, tripsMap);
-                            printDoneWith(agency, csvType);
-                            }));
-                        }
-                        case "routes.csv" ->{
-                            futures.add(executor.submit(() -> {
-                            DataExtractorGTFS.extractRoutes(path, routesMap, agency);
-                            printDoneWith(agency, csvType);
-                            }));
-                        }
-                        case "stops.csv" -> {
-                            futures.add(executor.submit(() -> {
-                            DataExtractorGTFS.extractStops(path, stopsMap, agency);
-                            printDoneWith(agency, csvType);
-                            }));
-                        }
+                            System.out.println("Done with " + company + "/" + csvType + "by trip_id");
+                        }));
                     }
+                    case "trips.csv" ->{
+                        futures.add(executor.submit(() -> {
+                            DataExtractorGTFS.extractTrips(path, tripsMap);
+                            printDoneWith(company, csvType);
+                        }));
+                    }
+                    case "routes.csv" ->{
+                        futures.add(executor.submit(() -> {
+                            DataExtractorGTFS.extractRoutes(path, routesMap);
+                            printDoneWith(company, csvType);
+                        }));
+                    }
+                    case "stops.csv" -> {
+                        futures.add(executor.submit(() -> {
+                            DataExtractorGTFS.extractStops(path, stopsMap);
+                            printDoneWith(company, csvType);
+                        }));
+                    }
+                }
             }
             System.out.println("Submitted all for " + csvType);
         }
