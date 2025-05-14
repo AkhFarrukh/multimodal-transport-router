@@ -33,7 +33,6 @@ public class Main {
                 stopsMap
         );
 
-
         System.out.println("Grouped by stop_id: " + stopsMapByStopId.size());
         System.out.println("Grouped by trip_id: " + stopsMapByTripId.size());
         System.out.println("Trips: " + tripsMap.size());
