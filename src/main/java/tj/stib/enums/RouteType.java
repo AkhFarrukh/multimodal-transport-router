@@ -1,4 +1,4 @@
-package tj.stib;
+package tj.stib.enums;
 
 /**
  * Enum for Route Types.

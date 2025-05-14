@@ -1,6 +1,6 @@
 package tj.stib.records;
 
-import tj.stib.RouteType;
+import tj.stib.enums.RouteType;
 
 public class Route {
     public final String route_id;
