@@ -13,17 +13,8 @@ public class Main {
         long startTime = System.currentTimeMillis();
         System.out.println("Working Directory: " + System.getProperty("user.dir"));
 
-
-
-        /*Path csvPathDELIJN = Path.of("GTFS/DELIJN/stop_times.csv");
-        Path csvPathSTIB =   Path.of("GTFS/STIB/stop_times.csv");
-        Path csvPathSNCB =   Path.of("GTFS/SNCB/stop_times.csv");
-        Path csvPathTEC =    Path.of("GTFS/TEC/stop_times.csv");
-        */
-
         List<String> companies = List.of("DELIJN", "STIB", "SNCB", "TEC");
         List<String> csvTypes = List.of("stop_times.csv", "routes.csv", "stops.csv", "trips.csv");
-
 
 
         Map<String, List<StopTime>> stopsMapByStopId = new HashMap<>();
@@ -59,19 +50,17 @@ public class Main {
             }
             System.out.println("Done with " + csvType);        }
 
-        /*
-        // Extract stop times grouped by stop_id
-        DataExtractorGTFS.extractStopTimes(csvPathDELIJN, "stop_id", stopsMapByStopId);
-        DataExtractorGTFS.extractStopTimes(csvPathSTIB, "stop_id", stopsMapByStopId);
-        DataExtractorGTFS.extractStopTimes(csvPathSNCB, "stop_id", stopsMapByStopId);
-        DataExtractorGTFS.extractStopTimes(csvPathTEC, "stop_id", stopsMapByStopId);
 
-        // Extract stop times grouped by trip_id
-        DataExtractorGTFS.extractStopTimes(csvPathDELIJN, "trip_id", stopsMapByTripId);
-        DataExtractorGTFS.extractStopTimes(csvPathSTIB, "trip_id", stopsMapByTripId);
-        DataExtractorGTFS.extractStopTimes(csvPathSNCB, "trip_id", stopsMapByTripId);
-        DataExtractorGTFS.extractStopTimes(csvPathTEC, "trip_id", stopsMapByTripId);
-        */
+        // Sort the stop times by departure time and stop sequence
+        for (List<StopTime> departures : stopsMapByStopId.values()) {
+            departures.sort(Comparator.comparingInt(st -> st.departure_time));
+        }
+        System.out.println("Sorted by departure time");
+
+        for (List<StopTime> departures : stopsMapByTripId.values()) {
+            departures.sort(Comparator.comparingInt(st -> st.stop_sequence));
+        }
+        System.out.println("Sorted by stop sequence");
 
 
         // Example: print sizes
