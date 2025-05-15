@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 import java.nio.file.Path;
 
 
-// java -Xmx8g -jar target/PROJET-Algo2-1.0-SNAPSHOT.jar [ departure_stop destination_stop 10:00:00 ]
+// java -Xmx8g -jar target/PROJET-Algo2-1.0-SNAPSHOT.jar [ BOILEAU ARSENAL 10:00:00 ]
 
 public class Main {
 
@@ -29,11 +29,12 @@ public class Main {
 
         String departureStop = args[1];
         String destinationStop = args[2];
-        String departureTime = args[3];
+        String departureTimeString = args[3];
+        int departureTime = Time.stringToSeconds(departureTimeString);
 
         System.out.println("Departure stop: " + departureStop);
         System.out.println("Destination stop: " + destinationStop);
-        System.out.println("Departure time: " + departureTime);
+        System.out.println("Departure time: " + Time.secondsToString(departureTime));
 
 
 
@@ -52,6 +53,17 @@ public class Main {
                 routesMap,
                 stopsMap
         );
+
+        String departureStopId = FromMapExtractors.getStopIdByName(stopsMap, departureStop);
+        String destinationStopId = FromMapExtractors.getStopIdByName(stopsMap, destinationStop);
+
+
+
+
+
+
+        System.out.println("Departure stop id: " + departureStopId);
+        System.out.println("Destination stop id: " + destinationStopId);
 
         System.out.println("Grouped by stop_id: " + stopsMapByStopId.size());
         System.out.println("Grouped by trip_id: " + stopsMapByTripId.size());
