@@ -18,6 +18,26 @@ public class Main {
         System.out.println("Working Directory: " + System.getProperty("user.dir"));
 
 
+        if (args.length < 5) {
+            System.out.println("Usage: java -jar <jarfile> ( <departure_stop> <destination_stop> <departure_time> )");
+            return;
+        }
+        if (!args[0].equals("(") || !args[4].equals(")")) {
+            System.out.println("Invalid departure stop format. Expected format: ( stop_A stop_B xx:xx:xx )");
+            return;
+        }
+
+        String departureStop = args[1];
+        String destinationStop = args[2];
+        String departureTime = args[3];
+
+        System.out.println("Departure stop: " + departureStop);
+        System.out.println("Destination stop: " + destinationStop);
+        System.out.println("Departure time: " + departureTime);
+
+
+
+
         Map<String, List<StopTime>> stopsMapByStopId = new ConcurrentHashMap<>();
         Map<String, List<StopTime>> stopsMapByTripId = new ConcurrentHashMap<>();
         Map<String, String>         tripsMap =         new ConcurrentHashMap<>();

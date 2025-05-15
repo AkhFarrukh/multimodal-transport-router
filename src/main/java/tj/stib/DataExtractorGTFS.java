@@ -14,6 +14,8 @@ import java.nio.file.Path;
 
 import java.util.*;
 
+import static tj.stib.Time.*;
+
 
 public class DataExtractorGTFS {
 
@@ -59,7 +61,7 @@ public class DataExtractorGTFS {
                 String key = rec.getField(keyColumn);
                 StopTime stopTime = new StopTime(
                         rec.getField("trip_id"),
-                        (new Time(rec.getField("departure_time"))).totalSeconds(),
+                        stringToSeconds(rec.getField("departure_time")),
                         rec.getField("stop_id"),
                         Integer.parseInt(rec.getField("stop_sequence"))
                 );
@@ -87,6 +89,7 @@ public class DataExtractorGTFS {
     public static void extractRoutes(Path filePath, Map<String, Route> routesMap) {
         try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(filePath)) {
             csv.forEach(rec -> {
+                //todo make like extractStopTimes
                 String routeId = rec.getField("route_id");
                 String routeShortName = rec.getField("route_short_name");
                 String routeLongName = rec.getField("route_long_name");
