@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 import java.nio.file.Path;
 
 
-
+// java -Xmx8g -jar target/PROJET-Algo2-1.0-SNAPSHOT.jar [ departure_stop destination_stop 10:00:00 ]
 
 public class Main {
 
@@ -22,7 +22,7 @@ public class Main {
             System.out.println("Usage: java -jar <jarfile> ( <departure_stop> <destination_stop> <departure_time> )");
             return;
         }
-        if (!args[0].equals("(") || !args[4].equals(")")) {
+        if (!args[0].equals("[") || !args[4].equals("]")) {
             System.out.println("Invalid departure stop format. Expected format: ( stop_A stop_B xx:xx:xx )");
             return;
         }
