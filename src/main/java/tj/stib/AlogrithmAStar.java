@@ -56,7 +56,7 @@ public class AlogrithmAStar {
             }
         }
 
-        /*
+
         Stop currentStop = stopsMap.get(node.stop_id);
         for (Stop stop : stopsMap.values()){
             if(currentStop.stop_id != stop.stop_id){
@@ -69,7 +69,7 @@ public class AlogrithmAStar {
             }
         }
 
-         */
+
 
         return neighbors;
     }
