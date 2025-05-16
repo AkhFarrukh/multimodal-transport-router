@@ -19,35 +19,6 @@ import static tj.stib.Time.*;
 
 public class DataExtractorGTFS {
 
-
-    public static void readData(Path filePath) {
-        try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(filePath)) {
-            csv.forEach(rec ->
-                    System.out.println(rec.getField("trip_id"))
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    public static Map<String, Stop> extractStops(Path filePath) {
-
-        Map<String, Stop> stopsMap = new HashMap<>();
-
-        try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(filePath)) {
-
-            csv.forEach(rec ->
-                    System.out.println(rec.getField("trip_id"))
-
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return stopsMap;
-    }
-
-
     /**
      * Extracts stop times from a CSV file and groups them by a specified key column.
      *
@@ -59,6 +30,7 @@ public class DataExtractorGTFS {
         try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(filePath)) {
             csv.forEach(rec -> {
                 String key = rec.getField(keyColumn);
+                //todo check if start time from is bigger than departure time. if true, skip
                 StopTime stopTime = new StopTime(
                         rec.getField("trip_id"),
                         stringToSeconds(rec.getField("departure_time")),
