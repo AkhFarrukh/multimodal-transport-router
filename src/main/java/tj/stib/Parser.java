@@ -17,7 +17,6 @@ public class Parser {
     }
 
     public static void parseAndPopulateData(
-            Map<String, List<StopTime>> stopsMapByStopId,
             Map<String, List<StopTime>> stopsMapByTripId,
             Map<String, String> tripsMap,
             Map<String, Route> routesMap,
@@ -36,10 +35,6 @@ public class Parser {
                 Path path = Path.of("GTFS", company, csvType);
                 switch (csvType) {
                     case "stop_times.csv" -> {
-                        futures.add(executor.submit(() -> {
-                            DataExtractorGTFS.extractStopTimes(path, "stop_id", stopsMapByStopId);
-                            System.out.println("Done with " + company + "/" + csvType + " by stop_id");
-                        }));
                         futures.add(executor.submit(() -> {
                             DataExtractorGTFS.extractStopTimes(path, "trip_id", stopsMapByTripId);
                             System.out.println("Done with " + company + "/" + csvType + " by trip_id");
@@ -73,12 +68,6 @@ public class Parser {
 
         //sort lists per key
         List<Future<?>> sortFutures = new ArrayList<>();
-        for (List<StopTime> stopTimes : stopsMapByStopId.values()) {
-            sortFutures.add(executor.submit(() ->
-                    stopTimes.sort(Comparator.comparingInt(st -> st.departure_time))
-            ));
-        }
-        for (Future<?> f : sortFutures) f.get();
         System.out.println("Sorted by departure time");
 
         sortFutures.clear();

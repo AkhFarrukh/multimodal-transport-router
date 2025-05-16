@@ -3,14 +3,19 @@ package tj.stib;
 import tj.stib.enums.RouteType;
 
 public class Edge {
-    public final Node endNode;
-    public final int weight; // time in seconds
+    public final String endStopId;
+    public final int departureTime;
+    public final int arrivalTime;
     public final RouteType routeType;
+    public final String tripId;
 
-    public Edge(Node endNode, int weight, RouteType routeType) {
-        this.endNode = endNode;
-        this.weight = weight;
+
+    public Edge(String endStopId, int departureTime, int arrivalTime, RouteType routeType, String tripId) {
+        this.endStopId = endStopId;
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
         this.routeType = routeType;
+        this.tripId = tripId;
     }
 }
 

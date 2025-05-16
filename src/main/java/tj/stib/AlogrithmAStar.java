@@ -6,23 +6,23 @@ import tj.stib.records.Stop;
 import tj.stib.records.StopTime;
 
 import java.util.*;
+import java.util.stream.IntStream;
+
 
 public class AlogrithmAStar {
 
-    private final Map<String, List<StopTime>> stopsMapByStopId;
     private final Map<String, List<StopTime>> stopsMapByTripId;
     private final Map<String, String> tripsMap;
     private final Map<String, Route> routesMap;
     private final Map<String, Stop> stopsMap;
+    private Map<String, List<Edge>> graph = new HashMap<>();
 
     public AlogrithmAStar(
-            Map<String, List<StopTime>> stopsMapByStopId,
             Map<String, List<StopTime>> stopsMapByTripId,
             Map<String, String> tripsMap,
             Map<String, Route> routesMap,
             Map<String, Stop> stopsMap
     ) {
-        this.stopsMapByStopId = stopsMapByStopId;
         this.stopsMapByTripId = stopsMapByTripId;
         this.tripsMap = tripsMap;
         this.routesMap = routesMap;
@@ -35,9 +35,10 @@ public class AlogrithmAStar {
      * @param node
      * @return
      */
-    public List<Edge> getEdgesToNeighbors(Node node) {
+    /*
+    public List<Edge> getEdgesToNeighbors(String stop_id) {
         List<Edge> neighbors = new ArrayList<>();
-        List<StopTime> stopTimes = stopsMapByStopId.get(node.stop_id);
+        List<StopTime> stopTimes = stopsMapByStopId.get(stop_id);
 
         if (stopTimes == null) {
             return neighbors; // No stop times for this stop_id
@@ -85,44 +86,103 @@ public class AlogrithmAStar {
         return null;
     }
 
+    */
+
+    public void buildGraph() {
+        buildTransportGraph();
+        buildWalkingGraphParallel();
+
+    }
+
+    public void buildTransportGraph(){
+        for (String tripID : stopsMapByTripId.keySet()) {
+            List<StopTime> stopTimes = stopsMapByTripId.get(tripID);
+            for (int i = 0; i < stopTimes.size() - 1; i++) {
+                StopTime current = stopTimes.get(i);
+                StopTime next = stopTimes.get(i + 1);
+
+                List<Edge> edges = graph.computeIfAbsent(current.stop_id, k -> new ArrayList<>());
+                edges.add(new Edge(next.stop_id, current.departure_time, next.departure_time, routesMap.get(tripsMap.get(current.trip_id)).route_type, tripID));
+            }
+        }
+    }
+
+    public void buildWalkingGraph() {
+        for (Stop stopA : stopsMap.values()) {
+            for (Stop stopB : stopsMap.values()) {
+                if (!stopA.stop_id.equals(stopB.stop_id)) {
+                    int weight = Walker.walkingTimeSeconds(stopA, stopB);
+                    if (weight < Walker.maxWalkingTime) {
+                        List<Edge> edges = graph.computeIfAbsent(stopA.stop_id, k -> new ArrayList<>());
+                        edges.add(new Edge(stopB.stop_id, 0, weight, RouteType.WALK, null));
+                    }
+                }
+            }
+        }
+    }
+
+    public void buildWalkingGraphParallel() {
+        List<Stop> stops = new ArrayList<>(stopsMap.values());
+        int n = stops.size();
+
+        IntStream.range(0, n).parallel().forEach(i -> {
+            Stop stopA = stops.get(i);
+            for (int j = 0; j < n; j++) {
+                if (i == j) continue;
+                Stop stopB = stops.get(j);
+                int weight = Walker.walkingTimeSeconds(stopA, stopB);
+                if (weight < Walker.maxWalkingTime) {
+                    synchronized (graph) {
+                        List<Edge> edges = graph.computeIfAbsent(stopA.stop_id, k -> new ArrayList<>());
+                        edges.add(new Edge(stopB.stop_id, 0, weight, RouteType.WALK, null));
+                    }
+                }
+            }
+        });
+    }
 
 
-    public List<Node> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime){
+
+
+
+    public List<String> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime){
         PriorityQueue<QueueElement> openSetQueue = new PriorityQueue<>(Comparator.comparingInt(qe -> qe.fScore));
-        Map<Node, Node> cameFrom = new HashMap<>();
-        Map<Node, Integer> gScore = new HashMap<>();
+        Map<String, String> cameFrom = new HashMap<>();
+        Map<String, Integer> gScore = new HashMap<>();
 
         Stop startStop = stopsMap.get(departureStopID);
         Stop destStop = stopsMap.get(destinationStopID);
 
-        Node startNode = new Node(departureStopID, departureTime);
-        gScore.put(startNode, 0);
-        openSetQueue.add(new QueueElement(startNode, Walker.heuristic(startStop,destStop)));
+
+        gScore.put(departureStopID, 0);
+        openSetQueue.add(new QueueElement(departureStopID, Walker.heuristic(startStop,destStop)));
 
         while (!openSetQueue.isEmpty()) {
             QueueElement current = openSetQueue.poll();
-            Node currentNode = current.node;
+            String currentStopId = current.stopId;
 
-            if (currentNode.stop_id == destinationStopID) {
+            if (Objects.equals(currentStopId, destinationStopID)) {
                 // todo Reconstruct path
-                List<Node> path = new ArrayList<>();
-                while (cameFrom.containsKey(currentNode)) {
-                    path.add(currentNode);
-                    currentNode = cameFrom.get(currentNode);
+                List<String> path = new ArrayList<>();
+                while (cameFrom.containsKey(currentStopId)) {
+                    path.add(currentStopId);
+                    currentStopId = cameFrom.get(currentStopId);
                 }
                 Collections.reverse(path);
                 return path;
             }
 
-            for (Edge edge : getEdgesToNeighbors(currentNode)) {
-                int tentativeGScore = gScore.get(currentNode) + edge.weight;
-                if (!gScore.containsKey(edge.endNode) || tentativeGScore < gScore.get(edge.endNode)) {
-                    gScore.put(edge.endNode, tentativeGScore);
+            List<Edge> edges = graph.get(currentStopId);
 
-                    int fScore = tentativeGScore + Walker.heuristic(stopsMap.get(edge.endNode.stop_id), destStop);
-                    openSetQueue.add(new QueueElement(edge.endNode, fScore));
+            for (Edge edge : edges) {
+                int tentativeGScore = gScore.get(currentStopId) + (edge.arrivalTime - edge.departureTime);
+                if (!gScore.containsKey(edge.endStopId) || tentativeGScore < gScore.get(edge.endStopId)) {
+                    gScore.put(edge.endStopId, tentativeGScore);
 
-                    cameFrom.put(edge.endNode, currentNode);
+                    int fScore = tentativeGScore + Walker.heuristic(stopsMap.get(edge.endStopId), destStop);
+                    openSetQueue.add(new QueueElement(edge.endStopId, fScore));
+
+                    cameFrom.put(edge.endStopId, currentStopId);
                 }
             }
         }
@@ -137,6 +197,8 @@ public class AlogrithmAStar {
             System.out.println("Stop: " + stop.stop_name + ", Departure Time: " + Time.secondsToString(node.time));
         }
     }
+
+
 
 }
 

@@ -39,7 +39,7 @@ public class Main {
 
 
 
-        Map<String, List<StopTime>> stopsMapByStopId = new ConcurrentHashMap<>();
+
         Map<String, List<StopTime>> stopsMapByTripId = new ConcurrentHashMap<>();
         Map<String, String>         tripsMap =         new ConcurrentHashMap<>();
         Map<String, Route>          routesMap =        new ConcurrentHashMap<>();
@@ -47,7 +47,6 @@ public class Main {
 
 
         Parser.parseAndPopulateData(
-                stopsMapByStopId,
                 stopsMapByTripId,
                 tripsMap,
                 routesMap,
@@ -57,14 +56,21 @@ public class Main {
         String departureStopId = FromMapExtractors.getStopIdByName(stopsMap, departureStop);
         String destinationStopId = FromMapExtractors.getStopIdByName(stopsMap, destinationStop);
 
+
         AlogrithmAStar algorithmAStar = new AlogrithmAStar(
-                stopsMapByStopId,
                 stopsMapByTripId,
                 tripsMap,
                 routesMap,
                 stopsMap
         );
 
+        System.out.println("Building graph...");
+
+        algorithmAStar.buildGraph();
+
+        System.out.println("Graph built.");
+
+        /*
         List<Node> path = algorithmAStar.shortestPathAStar(
                 departureStopId,
                 destinationStopId,
@@ -72,13 +78,12 @@ public class Main {
         );
 
         algorithmAStar.printPath(path);
-
+        */
 
 
         System.out.println("Departure stop id: " + departureStopId);
         System.out.println("Destination stop id: " + destinationStopId);
 
-        System.out.println("Grouped by stop_id: " + stopsMapByStopId.size());
         System.out.println("Grouped by trip_id: " + stopsMapByTripId.size());
         System.out.println("Trips: " + tripsMap.size());
         System.out.println("Routes: " + routesMap.size());
