@@ -19,19 +19,20 @@ public class Walker {
     public static int walkingTimeSeconds(double lat1, double lon1, double lat2, double lon2){
         double distance = getDistanceFlatNaive(lat1, lon1, lat2, lon2);
         return (int) Math.round((distance / maxWalkigSpeed) * 3600); // time in seconds at walking speed
-    }
+    } //todo ceiling instead of round
 
     public static int walkingTimeSeconds(Stop stop1, Stop stop2){
         return walkingTimeSeconds(stop1.stop_lat, stop1.stop_lon, stop2.stop_lat, stop2.stop_lon);
     }
 
 
-    public static int ridingTimeSeconds(double lat1, double lon1, double lat2, double lon2){
+    //riding time in seconds
+    public static int heuristic(double lat1, double lon1, double lat2, double lon2){
         double distance = getDistanceFlatNaive(lat1, lon1, lat2, lon2);
         return (int) Math.round((distance / maxTransportSpeed) * 3600); // time in seconds at walking speed
     }
 
-    public static int ridingTimeSeconds(Stop stop1, Stop stop2){
-        return ridingTimeSeconds(stop1.stop_lat, stop1.stop_lon, stop2.stop_lat, stop2.stop_lon);
+    public static int heuristic(Stop stop1, Stop stop2){
+        return heuristic(stop1.stop_lat, stop1.stop_lon, stop2.stop_lat, stop2.stop_lon);
     }
 }

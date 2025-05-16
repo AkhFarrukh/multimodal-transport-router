@@ -57,8 +57,21 @@ public class Main {
         String departureStopId = FromMapExtractors.getStopIdByName(stopsMap, departureStop);
         String destinationStopId = FromMapExtractors.getStopIdByName(stopsMap, destinationStop);
 
+        AlogrithmAStar algorithmAStar = new AlogrithmAStar(
+                stopsMapByStopId,
+                stopsMapByTripId,
+                tripsMap,
+                routesMap,
+                stopsMap
+        );
 
+        List<Node> path = algorithmAStar.shortestPathAStar(
+                departureStopId,
+                destinationStopId,
+                departureTime
+        );
 
+        algorithmAStar.printPath(path);
 
 
 

@@ -80,8 +80,59 @@ public class AlogrithmAStar {
 
 
 
-    public void shrotestPathAStar(){
+    public List<Node> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime){
+        PriorityQueue<QueueElement> openSetQueue = new PriorityQueue<>(Comparator.comparingInt(qe -> qe.fScore));
+        Map<Node, Node> cameFrom = new HashMap<>();
+        Map<Node, Integer> gScore = new HashMap<>();
 
+        Stop startStop = stopsMap.get(departureStopID);
+        Stop destStop = stopsMap.get(destinationStopID);
+
+        Node startNode = new Node(departureStopID, departureTime);
+        gScore.put(startNode, 0);
+        openSetQueue.add(new QueueElement(startNode, Walker.heuristic(startStop,destStop)));
+
+        while (!openSetQueue.isEmpty()) {
+            QueueElement current = openSetQueue.poll();
+            Node currentNode = current.node;
+
+            if (currentNode.stop_id == destinationStopID) {
+                // todo Reconstruct path
+                List<Node> path = new ArrayList<>();
+                while (cameFrom.containsKey(currentNode)) {
+                    path.add(currentNode);
+                    currentNode = cameFrom.get(currentNode);
+                }
+                Collections.reverse(path);
+                return path;
+            }
+
+            for (Edge edge : getEdgesToNeighbors(currentNode)) {
+                int tentativeGScore = gScore.get(currentNode) + edge.weight;
+                if (!gScore.containsKey(edge.endNode) || tentativeGScore < gScore.get(edge.endNode)) {
+                    gScore.put(edge.endNode, tentativeGScore);
+
+                    int fScore = tentativeGScore + Walker.heuristic(stopsMap.get(edge.endNode.stop_id), destStop);
+                    openSetQueue.add(new QueueElement(edge.endNode, fScore));
+
+                    cameFrom.put(edge.endNode, currentNode);
+                }
+            }
+        }
+        return null; // No path found
+    }
+
+
+    public void printPath(List<Node> path) {
+        for (Node node : path) {
+            Stop stop = stopsMap.get(node.stop_id);
+
+            System.out.println("Stop: " + stop.stop_name + ", Departure Time: " + Time.secondsToString(node.time));
+        }
     }
 
 }
+
+
+
+
