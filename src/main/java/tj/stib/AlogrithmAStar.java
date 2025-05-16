@@ -37,8 +37,12 @@ public class AlogrithmAStar {
      */
     public List<Edge> getEdgesToNeighbors(Node node) {
         List<Edge> neighbors = new ArrayList<>();
+        List<StopTime> stopTimes = stopsMapByStopId.get(node.stop_id);
 
-        for (StopTime stopTime : stopsMapByStopId.get(node.stop_id)) {
+        if (stopTimes == null) {
+            return neighbors; // No stop times for this stop_id
+        }
+        for (StopTime stopTime : stopTimes) {
             //for every stop_time that has Node's stop_id
             if (stopTime.departure_time > node.time) {
                 //if stop_time occurs after we are on the stop.
@@ -52,6 +56,7 @@ public class AlogrithmAStar {
             }
         }
 
+        /*
         Stop currentStop = stopsMap.get(node.stop_id);
         for (Stop stop : stopsMap.values()){
             if(currentStop.stop_id != stop.stop_id){
@@ -63,6 +68,8 @@ public class AlogrithmAStar {
                 }
             }
         }
+
+         */
 
         return neighbors;
     }
