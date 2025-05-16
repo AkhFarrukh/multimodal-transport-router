@@ -70,7 +70,7 @@ public class Main {
 
         System.out.println("Graph built.");
 
-        /*
+
         List<Node> path = algorithmAStar.shortestPathAStar(
                 departureStopId,
                 destinationStopId,
@@ -78,7 +78,7 @@ public class Main {
         );
 
         algorithmAStar.printPath(path);
-        */
+
 
 
         System.out.println("Departure stop id: " + departureStopId);
