@@ -147,7 +147,8 @@ public class AlogrithmAStar {
 
     public List<String> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime){
         PriorityQueue<QueueElement> openSetQueue = new PriorityQueue<>(Comparator.comparingInt(qe -> qe.fScore));
-        Map<String, String> cameFrom = new HashMap<>();
+        Map<Edge, String> cameFromES = new HashMap<>();
+        Map<String, Edge> cameFromSE = new HashMap<>();
         Map<String, Integer> gScore = new HashMap<>();
 
         Stop startStop = stopsMap.get(departureStopID);
@@ -163,10 +164,11 @@ public class AlogrithmAStar {
 
             if (Objects.equals(currentStopId, destinationStopID)) {
                 // todo Reconstruct path
-                List<String> path = new ArrayList<>();
-                while (cameFrom.containsKey(currentStopId)) {
-                    path.add(currentStopId);
-                    currentStopId = cameFrom.get(currentStopId);
+                List<Edge> path = new ArrayList<>();
+                while (true) {
+                    Edge edge = cameFromSE.get(currentStopId);
+                    path.add(edge);
+                    String stopId = cameFromES.get(edge);
                 }
                 Collections.reverse(path);
                 return path;
@@ -182,7 +184,8 @@ public class AlogrithmAStar {
                     int fScore = tentativeGScore + Walker.heuristic(stopsMap.get(edge.endStopId), destStop);
                     openSetQueue.add(new QueueElement(edge.endStopId, fScore));
 
-                    cameFrom.put(edge.endStopId, currentStopId);
+                    cameFromES.put(edge, currentStopId);
+                    cameFromSE.put(edge.endStopId, edge);
                 }
             }
         }
