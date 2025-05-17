@@ -65,15 +65,10 @@ public class Main {
             }
         }
 
-
         //System.out.println("Departure stop: " + departureStop);
         //System.out.println("Destination stop: " + destinationStop);
         //System.out.println("Departure time: " + Time.secondsToString(departureTime));
         System.out.println("Options: " + options);
-
-
-
-
 
         Map<String, List<StopTime>> stopsMapByTripId = new ConcurrentHashMap<>();
         Map<String, String>         tripsMap =         new ConcurrentHashMap<>();
@@ -114,11 +109,11 @@ public class Main {
                 departureTime
         );
 
-        algorithmAStar.printPath(path);
-
-
-
-
+        if (path != null) {
+            algorithmAStar.printPath(path);
+        } else {
+            System.out.println("No path found.");
+        }
 
         //System.out.println("Grouped by trip_id: " + stopsMapByTripId.size());
         //System.out.println("Trips: " + tripsMap.size());
