@@ -147,7 +147,8 @@ public class AlogrithmAStar {
 
 
 
-    public List<Node> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime) {
+
+    public List<Edge> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime) {
         PriorityQueue<QueueElement> openSetQueue = new PriorityQueue<>(Comparator.comparingInt(qe -> qe.fScore));
         Map<Edge, Edge> cameFrom = new HashMap<>();
         Map<String, Integer> bestArrivalTime = new HashMap<>();
@@ -180,13 +181,12 @@ public class AlogrithmAStar {
                     newArrivalTime = newDepartureTime + (edge.arrivalTime - edge.departureTime);
                 } else {
                     if (edge.departureTime < currentEdge.arrivalTime) {
-                        continue;// skip trips from past
+                        continue; // skip trips from past
                     }
                     newDepartureTime = edge.departureTime;
                     newArrivalTime = edge.arrivalTime;
                 }
 
-                // Create a new edge with updated times
                 Edge newEdge = new Edge(
                         edge.endStopId,
                         newDepartureTime,
@@ -203,7 +203,6 @@ public class AlogrithmAStar {
                     int timeScore = newArrivalTime - departureTime;
                     int hScore = Walker.heuristic(stopsMap.get(edge.endStopId), destStop);
 
-
                     openSetQueue.add(new QueueElement(newEdge, timeScore + hScore));
                     cameFrom.put(newEdge, currentEdge);
                 }
@@ -212,32 +211,67 @@ public class AlogrithmAStar {
         return null;
     }
 
-    private List<Node> reconstructPath(Map<Edge, Edge> cameFrom, Edge current, Edge start) {
-        List<Node> path = new ArrayList<>();
+    private List<Edge> reconstructPath(Map<Edge, Edge> cameFrom, Edge current, Edge start) {
+        List<Edge> path = new ArrayList<>();
         while (current != null) {
-            path.add(0, new Node(current.endStopId, current.arrivalTime));
-            if (current.departureTime != current.arrivalTime) {
-                path.add(0, new Node(current.endStopId, current.departureTime));
-            }
+            path.add(0, current);
             current = cameFrom.get(current);
         }
-        path.add(0, new Node(start.endStopId, start.departureTime));
+        path.add(0, start);
         return path;
     }
 
-    public void printPath(List<Node> path) {
-        for (int i = 0; i < path.size(); i++) {
-            Node node = path.get(i);
-            Stop stop = stopsMap.get(node.stop_id);
 
-            if (i < path.size() - 1 && path.get(i + 1).stop_id.equals(node.stop_id)) {
-                // This is a departure time
-                System.out.println("Stop: " + stop.stop_name +
-                        ", Wait until: " + Time.secondsToString(node.time));
+    public void printPath(List<Edge> path) {
+        for (int i = 0; i < path.size() - 1; i++) {
+            Edge current = path.get(i);
+            Edge next = path.get(i + 1);
+
+            // Skip if this is a middle stop of the same trip
+            if (i > 0 && next.tripId != null && next.tripId.equals(path.get(i).tripId)) {
+                continue;
+            }
+
+            Stop currentStop = stopsMap.get(current.endStopId);
+            Stop nextStop = stopsMap.get(next.endStopId);
+
+            if (next.routeType == RouteType.WALK) {
+                System.out.printf("Walk from %s (%s) to %s (%s)%n",
+                        currentStop.stop_name,
+                        Time.secondsToString(next.departureTime),
+                        nextStop.stop_name,
+                        Time.secondsToString(next.arrivalTime));
             } else {
-                // This is an arrival time
-                System.out.println("Stop: " + stop.stop_name +
-                        ", Arrive at: " + Time.secondsToString(node.time));
+                // Find the last stop of this trip
+                Edge lastEdgeOfTrip = next;
+                for (int j = i + 2; j < path.size(); j++) {
+                    if (path.get(j).tripId != null &&
+                            path.get(j).tripId.equals(next.tripId)) {
+                        lastEdgeOfTrip = path.get(j);
+                    } else {
+                        break;
+                    }
+                }
+
+                Stop firstStop = stopsMap.get(current.endStopId);
+                Stop finalStop = stopsMap.get(lastEdgeOfTrip.endStopId);
+                Route route = routesMap.get(tripsMap.get(next.tripId));
+
+                System.out.printf("Take %s %s %s from %s (%s) to %s (%s)%n",
+                        route.route_long_name,
+                        route.route_type,
+                        route.route_short_name,
+                        firstStop.stop_name,
+                        Time.secondsToString(next.departureTime),
+                        finalStop.stop_name,
+                        Time.secondsToString(lastEdgeOfTrip.arrivalTime));
+
+                // Skip the intermediate edges of this trip
+                while (i < path.size() - 2 &&
+                        path.get(i + 2).tripId != null &&
+                        path.get(i + 2).tripId.equals(next.tripId)) {
+                    i++;
+                }
             }
         }
     }

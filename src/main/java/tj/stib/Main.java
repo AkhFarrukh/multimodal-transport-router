@@ -71,7 +71,7 @@ public class Main {
         System.out.println("Graph built.");
 
 
-        List<Node> path = algorithmAStar.shortestPathAStar(
+        List<Edge> path = algorithmAStar.shortestPathAStar(
                 departureStopId,
                 destinationStopId,
                 departureTime
