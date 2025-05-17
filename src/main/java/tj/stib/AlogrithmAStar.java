@@ -151,12 +151,14 @@ public class AlogrithmAStar {
     public List<Edge> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime) {
         PriorityQueue<QueueElement> openSetQueue = new PriorityQueue<>(Comparator.comparingInt(qe -> qe.fScore));
         Map<Edge, Edge> cameFrom = new HashMap<>();
-        Map<String, Integer> bestArrivalTime = new HashMap<>();
+        Map<String, Integer> bestArrivalTime = new HashMap<>(); //acts as g score
 
         Stop startStop = stopsMap.get(departureStopID);
         Stop destStop = stopsMap.get(destinationStopID);
 
+        //by convention the first stop is transformed to an Edge to it
         Edge startEdge = new Edge(departureStopID, departureTime, departureTime, RouteType.WALK, null);
+
         bestArrivalTime.put(departureStopID, departureTime);
         openSetQueue.add(new QueueElement(startEdge, Walker.heuristic(startStop, destStop)));
 
@@ -214,10 +216,10 @@ public class AlogrithmAStar {
     private List<Edge> reconstructPath(Map<Edge, Edge> cameFrom, Edge current, Edge start) {
         List<Edge> path = new ArrayList<>();
         while (current != null) {
-            path.add(0, current);
+            path.addFirst(current);
             current = cameFrom.get(current);
         }
-        path.add(0, start);
+        path.addFirst(start);
         return path;
     }
 
@@ -227,10 +229,6 @@ public class AlogrithmAStar {
             Edge current = path.get(i);
             Edge next = path.get(i + 1);
 
-            // Skip if this is a middle stop of the same trip
-            if (i > 0 && next.tripId != null && next.tripId.equals(path.get(i).tripId)) {
-                continue;
-            }
 
             Stop currentStop = stopsMap.get(current.endStopId);
             Stop nextStop = stopsMap.get(next.endStopId);
@@ -242,11 +240,11 @@ public class AlogrithmAStar {
                         nextStop.stop_name,
                         Time.secondsToString(next.arrivalTime));
             } else {
-                // Find the last stop of this trip
+                // find the last stop of this trip
                 Edge lastEdgeOfTrip = next;
                 for (int j = i + 2; j < path.size(); j++) {
-                    if (path.get(j).tripId != null &&
-                            path.get(j).tripId.equals(next.tripId)) {
+                    // check after the next edge
+                    if (path.get(j).tripId != null && path.get(j).tripId.equals(next.tripId)) {
                         lastEdgeOfTrip = path.get(j);
                     } else {
                         break;
@@ -258,7 +256,7 @@ public class AlogrithmAStar {
                 Route route = routesMap.get(tripsMap.get(next.tripId));
 
                 System.out.printf("Take %s %s %s from %s (%s) to %s (%s)%n",
-                        route.route_long_name,
+                        extractAgencyName(route.route_id),
                         route.route_type,
                         route.route_short_name,
                         firstStop.stop_name,
@@ -266,17 +264,21 @@ public class AlogrithmAStar {
                         finalStop.stop_name,
                         Time.secondsToString(lastEdgeOfTrip.arrivalTime));
 
-                // Skip the intermediate edges of this trip
-                while (i < path.size() - 2 &&
-                        path.get(i + 2).tripId != null &&
-                        path.get(i + 2).tripId.equals(next.tripId)) {
+                // skip the middle stops of the same trip
+                while (i < path.size() - 2 && path.get(i + 2).tripId != null && path.get(i + 2).tripId.equals(next.tripId)) {
                     i++;
                 }
             }
         }
     }
 
-
+    public static String extractAgencyName(String input) {
+        int index = input.indexOf('-');
+        if (index == -1) {
+            return input; // No dash found, return the whole string
+        }
+        return input.substring(0, index);
+    }
 
 
 

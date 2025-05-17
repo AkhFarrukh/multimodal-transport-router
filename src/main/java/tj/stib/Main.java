@@ -10,6 +10,9 @@ import java.nio.file.Path;
 
 // java -Xmx8g -jar target/PROJET-Algo2-1.0-SNAPSHOT.jar [ BOILEAU ARSENAL 10:00:00 ]
 
+//[ Alveringem Nieuwe Herberg - Aubange - 10:30:00 ]
+// [ BOILEAU - JANSON - 07:20:00 ]
+
 public class Main {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
@@ -17,24 +20,39 @@ public class Main {
         long startTime = System.currentTimeMillis();
         System.out.println("Working Directory: " + System.getProperty("user.dir"));
 
+        // Join all args to handle spaces
+        String joinedArgs = String.join(" ", args);
+        int leftBracket = joinedArgs.indexOf('[');
+        int rightBracket = joinedArgs.indexOf(']');
 
-        if (args.length < 5) {
-            System.out.println("Usage: java -jar <jarfile> ( <departure_stop> <destination_stop> <departure_time> )");
+        if (leftBracket == -1 || rightBracket == -1 || rightBracket < leftBracket) {
+            System.out.println("Usage: java -jar <jarfile> [ departure stop - destination stop - departure time ] [options]");
             return;
         }
-        if (!args[0].equals("[") || !args[4].equals("]")) {
-            System.out.println("Invalid departure stop format. Expected format: ( stop_A stop_B xx:xx:xx )");
+
+        String insideBrackets = joinedArgs.substring(leftBracket + 1, rightBracket).trim();
+        String[] tokens = insideBrackets.split("\\s*-\\s*");
+        if (tokens.length != 3) {
+            System.out.println("Invalid input. Expected format: [ departure stop - destination stop - departure time ]");
             return;
         }
 
-        String departureStop = args[1];
-        String destinationStop = args[2];
-        String departureTimeString = args[3];
+        String departureStop = tokens[0].trim();
+        String destinationStop = tokens[1].trim();
+        String departureTimeString = tokens[2].trim();
         int departureTime = Time.stringToSeconds(departureTimeString);
+
+        // Parse extra options after ']'
+        String extraArgs = joinedArgs.substring(rightBracket + 1).trim();
+        List<String> options = new ArrayList<>();
+        if (!extraArgs.isEmpty()) {
+            options = Arrays.asList(extraArgs.split("\\s+"));
+        }
 
         System.out.println("Departure stop: " + departureStop);
         System.out.println("Destination stop: " + destinationStop);
         System.out.println("Departure time: " + Time.secondsToString(departureTime));
+        System.out.println("Options: " + options);
 
 
 
@@ -56,6 +74,8 @@ public class Main {
         String departureStopId = FromMapExtractors.getStopIdByName(stopsMap, departureStop);
         String destinationStopId = FromMapExtractors.getStopIdByName(stopsMap, destinationStop);
 
+        System.out.println("Departure stop id: " + departureStopId);
+        System.out.println("Destination stop id: " + destinationStopId);
 
         AlogrithmAStar algorithmAStar = new AlogrithmAStar(
                 stopsMapByTripId,
@@ -81,8 +101,7 @@ public class Main {
 
 
 
-        System.out.println("Departure stop id: " + departureStopId);
-        System.out.println("Destination stop id: " + destinationStopId);
+
 
         System.out.println("Grouped by trip_id: " + stopsMapByTripId.size());
         System.out.println("Trips: " + tripsMap.size());
