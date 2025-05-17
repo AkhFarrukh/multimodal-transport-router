@@ -1,11 +1,11 @@
 package tj.stib;
 
 public class QueueElement {
-    public final Node node;
+    public final Edge edge;
     public final int fScore;
 
-    QueueElement(Node node, int fScore) {
-        this.node = node;
+    QueueElement(Edge edge, int fScore) {
+        this.edge = edge;
         this.fScore = fScore;
     }
 }

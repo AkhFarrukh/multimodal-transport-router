@@ -6,6 +6,7 @@ import tj.stib.records.Stop;
 import tj.stib.records.StopTime;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
 
@@ -15,7 +16,7 @@ public class AlogrithmAStar {
     private final Map<String, String> tripsMap;
     private final Map<String, Route> routesMap;
     private final Map<String, Stop> stopsMap;
-    private Map<String, List<Edge>> graph = new HashMap<>();
+    private Map<String, List<Edge>> graph = new ConcurrentHashMap<>();
 
     public AlogrithmAStar(
             Map<String, List<StopTime>> stopsMapByTripId,
@@ -147,20 +148,18 @@ public class AlogrithmAStar {
 
     public List<Node> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime){
         PriorityQueue<QueueElement> openSetQueue = new PriorityQueue<>(Comparator.comparingInt(qe -> qe.fScore));
-        Map<Node, Node> cameFrom = new HashMap<>();
+        Map<Edge, Edge> cameFrom = new HashMap<>();
         Map<String, Integer> gScore = new HashMap<>();
 
         Stop startStop = stopsMap.get(departureStopID);
         Stop destStop = stopsMap.get(destinationStopID);
 
-        Node startNode = new Node(departureStopID, departureTime);
+        Edge startEdge = new Edge(departureStopID, departureTime, departureTime, RouteType.WALK, null);
         gScore.put(departureStopID, 0);
-        openSetQueue.add(new QueueElement(startNode, Walker.heuristic(startStop,destStop)));
+        openSetQueue.add(new QueueElement(startEdge, Walker.heuristic(startStop,destStop)));
 
         while (!openSetQueue.isEmpty()) {
             QueueElement current = openSetQueue.poll();
-            Node currentNode = current.node;
-            String currentStopId = current.node.stop_id;
 
             if (Objects.equals(currentStopId, destinationStopID)) {
                 // todo Reconstruct path
@@ -173,20 +172,24 @@ public class AlogrithmAStar {
                 return path;
             }
 
-            List<Edge> edges = graph.get(currentStopId);
+            List<Edge> edges = graph.get(current.edge.endStopId);
 
             for (Edge edge : edges) {
-                if (edge.departureTime < currentNode.time) {
-                    continue;
+                if (edge.routeType != RouteType.WALK){
+                    if (edge.departureTime < current.edge.arrivalTime) {
+                        continue;
+                    }
                 }
-                int tentativeGScore = gScore.get(currentStopId) + (edge.arrivalTime - edge.departureTime);
+
+                int tentativeGScore = gScore.get(current.edge.endStopId) + (edge.arrivalTime - edge.departureTime);
+
                 if (!gScore.containsKey(edge.endStopId) || tentativeGScore < gScore.get(edge.endStopId)) {
                     gScore.put(edge.endStopId, tentativeGScore);
 
                     int fScore = tentativeGScore + Walker.heuristic(stopsMap.get(edge.endStopId), destStop);
-                    openSetQueue.add(new QueueElement(new Node(edge.endStopId, edge.arrivalTime), fScore));
+                    openSetQueue.add(new QueueElement(edge, fScore));
 
-                    cameFrom.put(new Node(edge.endStopId, edge.arrivalTime), currentNode);
+                    cameFrom.put(edge, current.edge);
                 }
             }
         }
