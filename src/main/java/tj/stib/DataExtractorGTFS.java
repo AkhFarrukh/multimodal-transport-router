@@ -30,7 +30,6 @@ public class DataExtractorGTFS {
         try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(filePath)) {
             csv.forEach(rec -> {
                 String key = rec.getField(keyColumn);
-                //todo check if start time from is bigger than departure time. if true, skip
                 StopTime stopTime = new StopTime(
                         rec.getField("trip_id"),
                         stringToSeconds(rec.getField("departure_time")),
@@ -61,7 +60,6 @@ public class DataExtractorGTFS {
     public static void extractRoutes(Path filePath, Map<String, Route> routesMap) {
         try (CsvReader<NamedCsvRecord> csv = CsvReader.builder().ofNamedCsvRecord(filePath)) {
             csv.forEach(rec -> {
-                //todo make like extractStopTimes
                 String routeId = rec.getField("route_id");
                 String routeShortName = rec.getField("route_short_name");
                 String routeLongName = rec.getField("route_long_name");

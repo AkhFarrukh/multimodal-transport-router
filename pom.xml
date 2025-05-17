@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>tj.stib</groupId>
-    <artifactId>PROJET-Algo2</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>STIB</artifactId>
+    <version>1.0</version>
 
     <properties>
         <maven.compiler.source>24</maven.compiler.source>
