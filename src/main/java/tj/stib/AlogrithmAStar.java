@@ -37,64 +37,6 @@ public class AlogrithmAStar {
     }
 
 
-    /**
-     * Get all outgoing Edges from a node
-     * @param node
-     * @return
-     */
-    /*
-    public List<Edge> getEdgesToNeighbors(String stop_id) {
-        List<Edge> neighbors = new ArrayList<>();
-        List<StopTime> stopTimes = stopsMapByStopId.get(stop_id);
-
-        if (stopTimes == null) {
-            return neighbors; // No stop times for this stop_id
-        }
-        for (StopTime stopTime : stopTimes) {
-            //for every stop_time that has Node's stop_id
-            if (stopTime.departure_time > node.time) {
-                //if stop_time occurs after we are on the stop.
-                StopTime nextStopTime = getNextInTrip(stopTime);
-
-                Node nextNode = new Node(nextStopTime.stop_id, nextStopTime.departure_time);
-                int weight = nextStopTime.departure_time - node.time;
-                RouteType routeType = routesMap.get(tripsMap.get(stopTime.trip_id)).route_type;
-
-                neighbors.add(new Edge(nextNode, weight, routeType));
-            }
-        }
-
-
-        Stop currentStop = stopsMap.get(node.stop_id);
-        for (Stop stop : stopsMap.values()){
-            if(currentStop.stop_id != stop.stop_id){
-                int weight = Walker.walkingTimeSeconds(currentStop, stop);
-                if (weight < Walker.maxWalkingTime) {
-                    Node nextNode = new Node(stop.stop_id, node.time + weight);
-                    RouteType routeType = RouteType.WALK;
-                    neighbors.add(new Edge(nextNode, weight, routeType));
-                }
-            }
-        }
-
-
-
-        return neighbors;
-    }
-
-    public StopTime getNextInTrip(StopTime stopTime){
-        List<StopTime> stopTimes = stopsMapByTripId.get(stopTime.trip_id); //sorted by stop_sequence
-        for (int i = 0; i < stopTimes.size() - 1; i++) {
-            // get next stop_time in trip
-            if (stopTimes.get(i).stop_sequence == stopTime.stop_sequence){
-                return stopTimes.get(i + 1);
-            }
-        }
-        return null;
-    }
-
-    */
-
     public void buildGraph() {
         buildTransportGraph();
         buildWalkingGraphParallel();
@@ -261,7 +203,7 @@ public class AlogrithmAStar {
                         nextStop.stop_name,
                         Time.secondsToString(next.arrivalTime));
             } else {
-                // find the last stop of this trip
+                // find the last used stop of this trip
                 Edge lastEdgeOfTrip = next;
                 for (int j = i + 2; j < path.size(); j++) {
                     // check after the next edge
@@ -300,9 +242,6 @@ public class AlogrithmAStar {
         }
         return input.substring(0, index);
     }
-
-
-
 
 }
 

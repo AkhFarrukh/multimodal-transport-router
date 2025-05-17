@@ -22,6 +22,8 @@ public class Parser {
             Map<String, Route> routesMap,
             Map<String, Stop> stopsMap) throws InterruptedException, ExecutionException  {
 
+        System.out.println("Parsing and extracting data...");
+
         List<String> companies = List.of("DELIJN", "STIB", "SNCB", "TEC");
         List<String> csvTypes = List.of("stop_times.csv", "routes.csv", "stops.csv", "trips.csv");
 
@@ -37,30 +39,30 @@ public class Parser {
                     case "stop_times.csv" -> {
                         futures.add(executor.submit(() -> {
                             DataExtractorGTFS.extractStopTimes(path, "trip_id", stopsMapByTripId);
-                            System.out.println("Done with " + company + "/" + csvType + " by trip_id");
+                            //System.out.println("Done with " + company + "/" + csvType + " by trip_id");
                         }));
                     }
                     case "trips.csv" -> {
                         futures.add(executor.submit(() -> {
                             DataExtractorGTFS.extractTrips(path, tripsMap);
-                            printDoneWith(company, csvType);
+                            //printDoneWith(company, csvType);
                         }));
                     }
                     case "routes.csv" -> {
                         futures.add(executor.submit(() -> {
                             DataExtractorGTFS.extractRoutes(path, routesMap);
-                            printDoneWith(company, csvType);
+                            //printDoneWith(company, csvType);
                         }));
                     }
                     case "stops.csv" -> {
                         futures.add(executor.submit(() -> {
                             DataExtractorGTFS.extractStops(path, stopsMap);
-                            printDoneWith(company, csvType);
+                            //printDoneWith(company, csvType);
                         }));
                     }
                 }
             }
-            System.out.println("Submitted all for " + csvType);
+            //System.out.println("Submitted all for " + csvType);
         }
         for (Future<?> future : futures) {
             future.get();
@@ -68,7 +70,6 @@ public class Parser {
 
         //sort lists per key
         List<Future<?>> sortFutures = new ArrayList<>();
-        System.out.println("Sorted by departure time");
 
         sortFutures.clear();
         for (List<StopTime> stopTimes : stopsMapByTripId.values()) {
@@ -77,7 +78,7 @@ public class Parser {
             ));
         }
         for (Future<?> f : sortFutures) f.get();
-        System.out.println("Sorted by stop sequence");
+        //System.out.println("All data extracted and sorted");
         executor.shutdown();
     }
 }

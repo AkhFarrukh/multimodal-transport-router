@@ -20,7 +20,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
 
         long startTime = System.currentTimeMillis();
-        System.out.println("Working Directory: " + System.getProperty("user.dir"));
+        //System.out.println("Working Directory: " + System.getProperty("user.dir"));
 
         // Join all args to handle spaces
         String joinedArgs = String.join(" ", args);
@@ -66,9 +66,9 @@ public class Main {
         }
 
 
-        System.out.println("Departure stop: " + departureStop);
-        System.out.println("Destination stop: " + destinationStop);
-        System.out.println("Departure time: " + Time.secondsToString(departureTime));
+        //System.out.println("Departure stop: " + departureStop);
+        //System.out.println("Destination stop: " + destinationStop);
+        //System.out.println("Departure time: " + Time.secondsToString(departureTime));
         System.out.println("Options: " + options);
 
 
@@ -91,8 +91,8 @@ public class Main {
         String departureStopId = FromMapExtractors.getStopIdByName(stopsMap, departureStop);
         String destinationStopId = FromMapExtractors.getStopIdByName(stopsMap, destinationStop);
 
-        System.out.println("Departure stop id: " + departureStopId);
-        System.out.println("Destination stop id: " + destinationStopId);
+        //System.out.println("Departure stop id: " + departureStopId);
+        //System.out.println("Destination stop id: " + destinationStopId);
 
         AlogrithmAStar algorithmAStar = new AlogrithmAStar(
                 stopsMapByTripId,
@@ -104,10 +104,8 @@ public class Main {
         );
 
         System.out.println("Building graph...");
-
         algorithmAStar.buildGraph();
-
-        System.out.println("Graph built.");
+        System.out.println("Finding shortest path...");
 
 
         List<Edge> path = algorithmAStar.shortestPathAStar(
@@ -122,10 +120,10 @@ public class Main {
 
 
 
-        System.out.println("Grouped by trip_id: " + stopsMapByTripId.size());
-        System.out.println("Trips: " + tripsMap.size());
-        System.out.println("Routes: " + routesMap.size());
-        System.out.println("Stops: " + stopsMap.size());
+        //System.out.println("Grouped by trip_id: " + stopsMapByTripId.size());
+        //System.out.println("Trips: " + tripsMap.size());
+        //System.out.println("Routes: " + routesMap.size());
+        //System.out.println("Stops: " + stopsMap.size());
 
         Runtime runtime = Runtime.getRuntime();
         long usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
