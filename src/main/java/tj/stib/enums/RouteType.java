@@ -17,7 +17,8 @@ public enum RouteType {
             case "TRAM" -> RouteType.TRAM;
             case "METRO" -> RouteType.METRO;
             case "TRAIN" -> RouteType.TRAIN;
-            default -> RouteType.WALK;
+            case "WALK" -> RouteType.WALK;
+            default -> null;
         };
     }
 }

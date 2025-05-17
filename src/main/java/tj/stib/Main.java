@@ -1,5 +1,6 @@
 package tj.stib;
 
+import tj.stib.enums.RouteType;
 import tj.stib.records.*;
 
 
@@ -12,6 +13,7 @@ import java.nio.file.Path;
 
 //[ Alveringem Nieuwe Herberg - Aubange - 10:30:00 ]
 // [ BOILEAU - JANSON - 07:20:00 ]
+// [ BOILEAU - DELTA - 09:30:00 ]
 
 public class Main {
 
@@ -26,7 +28,7 @@ public class Main {
         int rightBracket = joinedArgs.indexOf(']');
 
         if (leftBracket == -1 || rightBracket == -1 || rightBracket < leftBracket) {
-            System.out.println("Usage: java -jar <jarfile> [ departure stop - destination stop - departure time ] [options]");
+            System.out.println("Invalid input. Expected format: [ departure stop - destination stop - departure time ]");
             return;
         }
 
@@ -44,10 +46,25 @@ public class Main {
 
         // Parse extra options after ']'
         String extraArgs = joinedArgs.substring(rightBracket + 1).trim();
+
         List<String> options = new ArrayList<>();
+        List<RouteType> blackListedRouteTypes = new ArrayList<>();
+        boolean changesPenalty = false;
+
         if (!extraArgs.isEmpty()) {
             options = Arrays.asList(extraArgs.split("\\s+"));
+            // Process the options
+            for (String option : options) {
+
+                RouteType routeType = RouteType.fromString(option);
+                if (routeType != null) {
+                    blackListedRouteTypes.add(routeType);
+                }else if (option.equals("CHANGES")) {
+                      changesPenalty = true;
+                }
+            }
         }
+
 
         System.out.println("Departure stop: " + departureStop);
         System.out.println("Destination stop: " + destinationStop);
@@ -81,7 +98,9 @@ public class Main {
                 stopsMapByTripId,
                 tripsMap,
                 routesMap,
-                stopsMap
+                stopsMap,
+                blackListedRouteTypes,
+                changesPenalty
         );
 
         System.out.println("Building graph...");

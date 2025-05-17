@@ -17,17 +17,23 @@ public class AlogrithmAStar {
     private final Map<String, Route> routesMap;
     private final Map<String, Stop> stopsMap;
     private Map<String, List<Edge>> graph = new ConcurrentHashMap<>();
+    private final List<RouteType> routeTypeBlacklsit;
+    private final boolean changesPenalty;
 
     public AlogrithmAStar(
             Map<String, List<StopTime>> stopsMapByTripId,
             Map<String, String> tripsMap,
             Map<String, Route> routesMap,
-            Map<String, Stop> stopsMap
+            Map<String, Stop> stopsMap,
+            List<RouteType> routeTypeBlacklsit,
+            boolean changesPenalty
     ) {
         this.stopsMapByTripId = stopsMapByTripId;
         this.tripsMap = tripsMap;
         this.routesMap = routesMap;
         this.stopsMap = stopsMap;
+        this.routeTypeBlacklsit = routeTypeBlacklsit;
+        this.changesPenalty = changesPenalty;
     }
 
 
@@ -189,6 +195,8 @@ public class AlogrithmAStar {
                     newArrivalTime = edge.arrivalTime;
                 }
 
+                // since Edges are immutable, we create a new one with current times
+                // needed for time accurate walking
                 Edge newEdge = new Edge(
                         edge.endStopId,
                         newDepartureTime,
@@ -204,8 +212,21 @@ public class AlogrithmAStar {
 
                     int timeScore = newArrivalTime - departureTime;
                     int hScore = Walker.heuristic(stopsMap.get(edge.endStopId), destStop);
+                    int fScore = timeScore + hScore;
 
-                    openSetQueue.add(new QueueElement(newEdge, timeScore + hScore));
+                    if (routeTypeBlacklsit.contains(edge.routeType)) {
+                        fScore *= 2; // penalize blacklisted route types
+                    }
+
+                    if (changesPenalty
+                            && edge.tripId != null
+                            && currentEdge.tripId != null
+                            && !edge.tripId.equals(currentEdge.tripId)) {
+                        fScore *= 2; // penalty for changing routes
+                    }
+
+
+                    openSetQueue.add(new QueueElement(newEdge, fScore));
                     cameFrom.put(newEdge, currentEdge);
                 }
             }
