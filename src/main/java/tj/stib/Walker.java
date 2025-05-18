@@ -6,7 +6,7 @@ public class Walker {
     public static final double oneDegToKM = 111.3;
     public static final int maxWalkingTime = Time.stringToSeconds("00:15:00");
     public static final int maxWalkigSpeed = 5; // km/h
-    public static final int maxTransportSpeed = 30; // km/h
+    public static final int maxTransportSpeed = 80; // km/h
     //public static final int maxWalkingDistanceMeters = (maxWalkingTime / 3600) * maxWalkigSpeed * 1000; // in meters
 
 
