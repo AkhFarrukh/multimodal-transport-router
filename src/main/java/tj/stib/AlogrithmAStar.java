@@ -98,7 +98,7 @@ public class AlogrithmAStar {
     public List<Edge> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime) {
         PriorityQueue<QueueElement> openSetQueue = new PriorityQueue<>(Comparator.comparingInt(qe -> qe.fScore));
         Map<Edge, Edge> cameFrom = new HashMap<>();
-        Map<String, Integer> bestArrivalTime = new HashMap<>();
+        Map<String, Integer> gScore = new HashMap<>(); // best arrival time
 
         Stop startStop = stopsMap.get(departureStopID);
         Stop destStop = stopsMap.get(destinationStopID);
@@ -106,7 +106,7 @@ public class AlogrithmAStar {
         //by convention the first stop is transformed to an Edge to it
         Edge startEdge = new Edge(departureStopID, departureTime, departureTime, RouteType.WALK, null);
 
-        bestArrivalTime.put(departureStopID, departureTime);
+        gScore.put(departureStopID, departureTime);
         openSetQueue.add(new QueueElement(startEdge, Walker.heuristic(startStop, destStop)));
 
         while (!openSetQueue.isEmpty()) {
@@ -147,9 +147,9 @@ public class AlogrithmAStar {
                 );
 
                 // if not visited or found a better arrival time
-                if (!bestArrivalTime.containsKey(edge.endStopId) || newArrivalTime < bestArrivalTime.get(edge.endStopId)) {
+                if (!gScore.containsKey(edge.endStopId) || newArrivalTime < gScore.get(edge.endStopId)) {
 
-                    bestArrivalTime.put(edge.endStopId, newArrivalTime);
+                    gScore.put(edge.endStopId, newArrivalTime);
 
                     int timeScore = newArrivalTime - departureTime;
                     int hScore = Walker.heuristic(stopsMap.get(edge.endStopId), destStop);
