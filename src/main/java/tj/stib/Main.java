@@ -44,7 +44,7 @@ public class Main {
         String departureTimeString = tokens[2].trim();
         int departureTime = Time.stringToSeconds(departureTimeString);
 
-        // Parse extra options after ']'
+        // parse options after ']'
         String extraArgs = joinedArgs.substring(rightBracket + 1).trim();
 
         List<String> options = new ArrayList<>();
