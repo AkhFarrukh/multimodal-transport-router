@@ -73,7 +73,6 @@ public class AlogrithmAStar {
     public void buildWalkingGraphParallel() {
         List<Stop> stops = new ArrayList<>(stopsMap.values());
         int n = stops.size();
-
         IntStream.range(0, n).parallel().forEach(i -> {
             Stop stopA = stops.get(i);
             for (int j = 0; j < n; j++) {
@@ -99,7 +98,7 @@ public class AlogrithmAStar {
     public List<Edge> shortestPathAStar(String departureStopID, String destinationStopID, int departureTime) {
         PriorityQueue<QueueElement> openSetQueue = new PriorityQueue<>(Comparator.comparingInt(qe -> qe.fScore));
         Map<Edge, Edge> cameFrom = new HashMap<>();
-        Map<String, Integer> bestArrivalTime = new HashMap<>(); //acts as g score
+        Map<String, Integer> bestArrivalTime = new HashMap<>();
 
         Stop startStop = stopsMap.get(departureStopID);
         Stop destStop = stopsMap.get(destinationStopID);
