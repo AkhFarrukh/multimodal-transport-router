@@ -1,3 +1,36 @@
+# Multi-Modal Public Transit Route Planner (Belgium)
+
+A high-performance Java route planning engine for multi-modal public transportation across Belgium. The system integrates schedule data from all four major Belgian transit operators (STIB, TEC, De Lijn, SNCB) to compute optimal time-dependent itineraries including train, metro, tram, bus, and walking connections.
+
+---
+
+## Overview
+
+Finding the shortest path in a public transit network is fundamentally different from standard road network routing because transit networks are **time-dependent**: edges (trips) can only be traversed at specific departure times.
+
+This engine parses General Transit Feed Specification (GTFS) datasets, models the national transit schedule into a searchable graph structure, and computes optimal travel routes based on departure time and user preferences.
+
+---
+
+## Key Features
+
+- **Multi-Agency Integration:** Combines nationwide schedules from STIB (Brussels), TEC (Wallonia), De Lijn (Flanders), and SNCB (National Railway).
+- **Multi-Modal Routing:** Seamlessly chains trains, metros, trams, buses, and computed walking connections between nearby stations based on geographic coordinates (latitude/longitude).
+- **Time-Dependent Shortest Path:** Computes routes based on exact departure timetables rather than static travel times.
+- **Customizable Cost Functions & Preferences:** Supports route personalization, including:
+    - Penalty for specific transport modes (e.g., avoid buses, avoid metro).
+    - Penalty for transfers (prefer direct routes over routes with many changes).
+
+---
+
+## Data & Graph Modeling
+
+- **GTFS Parsing:** Ingests `routes.csv`, `stops.csv`, `trips.csv`, and `stop_times.csv` across all four agencies.
+- **Footpath Generation:** Computes walking transfer arcs between spatially adjacent stops across different agencies using geographic distance.
+- **Scale:** Processes millions of scheduled daily departures across tens of thousands of transit stops in Belgium.
+
+---
+
 ## Prerequisites
 
 - Java 24 JDK or newer
