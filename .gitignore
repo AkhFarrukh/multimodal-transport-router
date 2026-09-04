@@ -43,3 +43,6 @@ GTFS/
 
 ### PDF ###
 /Projet_Algorithmique_2_2025.pdf
+
+# IntelliJ IDEA files
+.idea/
